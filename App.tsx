@@ -1,24 +1,58 @@
+import { IconButton, Colors, Title, DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import Clipboard, { setString } from 'expo-clipboard';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { tierOneLifts, squatTierTwo } from './workouts'
-import { getRandomInt, generateWorkout } from './functions'
+import { generateWorkout } from './functions'
 
-let result = "Placeholder"
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#3498db',
+    accent: '#f1c40f',
+  },
+};
+
+let currentPlan:string = ""
 
 export default function App() {
-  const [result, setResult] = useState("Placeholder");
+  const [result, setResult] = useState("");
+  function createPlan(lift:string) {
+    currentPlan = generateWorkout(`${lift}`);
+    return currentPlan
+  }
+  const CopyMessage = async () => {
+    Clipboard.setString(this.state.message)
+}
+  function copyToClipboard() {
+    setString(currentPlan)
+    alert("Copied to clipboard.")
+  }
+
+
   return (
+    <PaperProvider theme={theme}>
     <View style={styles.container}>
-      <TouchableOpacity onPress={()=>setResult("New Placeholder")} style={styles.mainbutton}>Squat Workout</TouchableOpacity>
-      <TouchableOpacity onPress={()=>setResult("New Placeholder")} style={styles.mainbutton}>Bench Workout</TouchableOpacity>
-      <TouchableOpacity onPress={()=>setResult("New Placeholder")} style={styles.mainbutton}>Deadlift Workout</TouchableOpacity>
-      {result}
-      {/*<Text>{generateWorkout(tierOneLifts[getRandomInt(tierOneLifts.length)])}</Text>*/}
+      <Title style={styles.mainText}>Powerlifting{'\n'}Workout Generator</Title>
+      <IconButton
+    style={styles.copyButton}
+    icon="clipboard"
+    color={Colors.blue500}
+    size={'10vh'}
+    onPress={() => copyToClipboard()}
+      />
+      <TouchableOpacity onPress={()=>setResult(`${createPlan('squat')}`)} style={[styles.mainButton, styles.leftButton]}>Squat</TouchableOpacity>
+      <TouchableOpacity onPress={()=>setResult(`${createPlan('bench')}`)} style={styles.mainButton}>Bench</TouchableOpacity>
+      <TouchableOpacity onPress={()=>setResult(`${createPlan('deadlift')}`)} style={[styles.mainButton, styles.rightButton]}>Deadlift</TouchableOpacity>
+      <Text style={styles.workoutPlan}>{result}</Text>
       <StatusBar style="auto" />
     </View>
+    </PaperProvider>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -27,15 +61,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mainbutton: {
+  mainButton: {
+    justifyContent: 'center',
     backgroundColor: 'black',
     border: '2px solid grey',
     borderRadius: 5,
     color: 'white',
-    paddingLeft: '10vw',
-    paddingRight: '10vw',
+    minWidth: '30vw',
+    textAlign: 'center',
     paddingTop: '5vw',
     paddingBottom: '5vw',
-
+    position: 'absolute',
+    fontSize: '2vh',
+    bottom: '4vh'
+  },
+  leftButton: {
+    left: '4vw'
+  },
+  rightButton: {
+    right: '4vw'
+  },
+  workoutPlan: {
+    fontSize: '4vh',
+    marginHorizontal: '2vw',
+    position: 'absolute',
+    top: '15vh'
+  },
+  mainText: {
+    fontSize: '3vh',
+    position: 'absolute',
+    top: '2vh'
+  },
+  copyButton: {
+    position: 'absolute',
+    right: '10vw',
+    bottom: '15vh'
   }
 });
